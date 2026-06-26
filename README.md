@@ -1,179 +1,176 @@
-# 🏓 Table Tennis Ball Tracking System  
+# 🏓 Table Tennis Ball Tracking & Haptic Feedback System
+
 ## Team Nirmaan51
 
-A computer vision–based table tennis analytics system that detects and tracks the ball, maps its position to real-world table coordinates using homography, visualizes bounce events on a grid, detects hit events, and exports structured match data.
+A computer vision–based assistive prototype designed to improve the table tennis experience for visually impaired players. The system detects and tracks an orange table tennis ball from a recorded match, maps its position to real-world table coordinates using homography, detects bounce events through trajectory analysis, and can communicate the detected coordinates to an ESP32-based haptic feedback module. The current prototype demonstrates the computer vision pipeline and a proof-of-concept haptic feedback system using a vibration motor array.
 
 <img width="1918" height="995" alt="image" src="https://github.com/user-attachments/assets/f2215385-aa94-4363-93e8-9b3ae53ec2e9" />
 
-## 📌 Overview:
+# 📌 Overview
 This project processes a recorded table tennis match video and:
+* Detects an orange table tennis ball using manually tuned HSV color thresholds.
+* Suppresses the green table surface using HSV masking to reduce background interference.
+* Tracks the ball position frame-by-frame using contour detection.
+* Maps image coordinates to real-world table coordinates using homography.
+* Detects bounce events from changes in the ball's vertical velocity.
+* Generates an annotated output video.
+* Logs detected bounce coordinates to a CSV file.
+* Supports optional serial communication for an ESP32-based haptic feedback system.
 
-- Detects the ball using HSV color segmentation
-- Removes background interference
-- Tracks ball position frame-by-frame
-- Converts pixel coordinates to real-world table coordinates
-- Displays bounce grid positions
-- Detects left and right hit events
-- Generates annotated output video
-- Logs structured event data into CSV
+# 🎯 Features
+* 🎥 HSV-based ball detection for an orange table tennis ball.
+* 🟩 Green table suppression using color masking.
+* 🧹 Morphological filtering for noise reduction.
+* ⚪ Contour-based ball localization.
+* 📐 Homography-based coordinate transformation.
+* 🟦 Velocity-based bounce detection.
+* 📊 Automatic CSV logging of detected bounce coordinates.
+* 💾 Annotated output video generation.
+* 📡 Optional ESP32 serial communication for haptic feedback.
 
+# 🛠️ Tech Stack
+* Python 3.x
+* OpenCV
+* NumPy
+* PySerial (optional)
 
-## 🎯 Features:
-- 🎥 Real-time ball detection using OpenCV
-- 📐 Homography-based coordinate transformation
-- 🟦 Bounce grid visualization
-- 📊 Automatic CSV event logging
-- 🛑 Game-over frame detection
-- 💾 Processed output video generation
-
-
-## 🛠️ Tech Stack:
-- Python 3.x  
-- OpenCV  
-- NumPy  
-
-
-## 📂 Project Structure:
-```
+# 📂 Project Structure
+```text
 DesignForBharat-OpenCV/
 │
 ├── low_input.mp4
-├── processed_output.mp4      (demo output)
+├── processed_output.mp4
+├── ball_events.csv
 ├── table_corners.npy
 ├── calibrate_table.py
-├── main_script.py
+├── main.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
 ```
 
-
-# 🚀 How to Use:
-
-## 🔹 Option 1: View Demo Output (No Setup Required)
-If you only want to see the system output:
-
-1. Open:
-```
+# 🚀 How to Use
+## 🔹 Option 1: View Demo Output
+Open:
+```text
 processed_output.mp4
 ```
-2. View the annotated ball tracking, bounce grid, and hit detection.
+to view the processed output showing:
+* Ball tracking
+* Bounce detection
+* Coordinate annotations
+* Frame counter
+No installation is required.
 
-No installation required.
-
-## 🔹 Option 2: Run the System Yourself
+## 🔹 Option 2: Run the Project
 ### 1️⃣ Clone the Repository
-```
+```bash
 git clone https://github.com/Jasz-rgb/DesignForBharat-OpenCV.git
 cd DesignForBharat-OpenCV
 ```
 
-### 2️⃣ (Recommended) Create a Virtual Environment
-```
+### 2️⃣ Create a Virtual Environment (Recommended)
+```bash
 python -m venv venv
 ```
 
-Activate it:
-**Windows**
-```
+Windows
+```bash
 venv\Scripts\activate
 ```
-**Mac/Linux**
-```
+
+Linux / macOS
+```bash
 source venv/bin/activate
 ```
 
-### 3️⃣ Install Dependencies:
-```
+### 3️⃣ Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-Your `requirements.txt` contains:
-```
+Example requirements:
+```text
 opencv-python>=4.8.0
 numpy>=1.24
 ```
 
-### 4️⃣ (Optional) Re-Calibrate Table Corners:
-If you want to recalibrate using a different video:
-
-```
+### 4️⃣ Recalibrate the Table
+Run
+```bash
 python calibrate_table.py
 ```
-Click table corners in this order:
-1. Bottom-Left  
-2. Bottom-Right  
-3. Top-Right  
-4. Top-Left  
 
-This generates:
-```
-table_corners.npy
-```
+Select the table corners in the following order:
+1. Bottom Left
+2. Bottom Right
+3. Top Right
+4. Top Left
 
-### 5️⃣ Run Ball Tracking:
-```
+A new calibration file (`table_corners.npy`) will be generated.
+
+### 5️⃣ Run the Tracker
+```bash
 python main.py
 ```
-Press **ESC** to exit the video window.
+Press **ESC** to exit.
 
-## 📊 Output Files
-### 🎥 Processed Video
+# 📊 Outputs
+## 🎥 Processed Video
 `processed_output.mp4`
 
-Includes:
-- Ball tracking visualization
-- Bounce grid position
-- Left/Right hit display
-- Frame counter
-- Game Over message
+Contains:
+* Ball tracking visualization
+* Bounce detection
+* Table coordinate annotations
+* Frame counter
+* Game Over indicator
 
-### 📄 CSV File:
+## 📄 CSV Output
 `ball_events.csv`
 
-Contains structured match data with the following columns:
-- frame
-- event
-- grid_x
-- grid_y
-- left_hit
-- right_hit
+Contains:
+* Frame number
+* Table X coordinate (m)
+* Table Y coordinate (m)
 
-This file is automatically generated after running the main script.
-
-
-## 📐 Calibration Details:
-The system uses homography mapping to convert camera pixel coordinates into real-world table dimensions.
-
-Official table dimensions used:
-- Width: **1.525 meters**
-- Length: **2.74 meters**
+# 📐 Calibration
+The project uses homography to convert image coordinates into real-world table coordinates.
+Official table dimensions:
+* **Length:** 2.74 m
+* **Width:** 1.525 m
 
 Calibration points are stored in:
-```
+```text
 table_corners.npy
 ```
 
-## 🧠 How It Works:
-1. Convert frame from BGR to HSV color space  
-2. Apply color threshold to detect ball  
-3. Remove green table interference  
-4. Apply morphological filtering  
-5. Detect contours  
-6. Identify valid circular ball contour  
-7. Transform pixel coordinates to table coordinates  
-8. Detect bounce and hit events  
-9. Overlay visualization  
-10. Save processed video and event logs  
+# 🧠 Processing Pipeline
+For each frame:
+1. Convert the frame from BGR to HSV.
+2. Apply manually selected HSV thresholds to isolate the orange table tennis ball.
+3. Remove the green table using a second HSV mask.
+4. Apply morphological opening and closing to remove noise.
+5. Detect contours and filter them by area and aspect ratio.
+6. Compute the ball center.
+7. Map the detected position to real-world table coordinates using homography.
+8. Detect bounce events by identifying changes in the ball's vertical velocity.
+9. Save detected bounce coordinates to a CSV file.
+10. Generate the annotated output video.
 
+# 📡 Optional Haptic Feedback Prototype
+The project can be extended with an ESP32-based haptic feedback system. During processing, detected bounce coordinates may be transmitted via serial communication to an ESP32, which maps the received coordinates to a vibration motor array.
+A sample hardware implementation is available on Tinkercad (implemented using an Arduino for simulation purposes):
+https://www.tinkercad.com/things/6ncZs4p1ir9-nirmaan-51?sharecode=B983Z8PPOPA5wNuwnbbzW4-mVaB5TwioOyDHGHF5REA
+> **Note:** The Tinkercad circuit demonstrates the hardware logic using an Arduino. The original prototype used an ESP32 to interface with the computer vision pipeline.
 
-## 🚀 Future Improvements:
-- Automatic bounce detection using velocity analysis  
-- Deep learning–based ball detection  
-- Real-time analytics dashboard  
-- Multi-camera tracking  
-- Player performance metrics  
+# 🚀 Future Improvements
+* Improved bounce detection using trajectory smoothing.
+* Automatic paddle hit detection.
+* Deep learning-based ball detection.
+* Live camera support.
+* Multi-camera tracking.
+* Smaller circuitry
 
-
-## 👥 Developed By:
+# 👥 Developed By
 **Team Nirmaan51**
